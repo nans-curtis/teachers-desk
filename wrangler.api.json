@@ -1,0 +1,9 @@
+{
+  "name":"teachers-desk-api",
+  "main":"api/worker.mjs",
+  "compatibility_date":"2026-10-22",
+  "compatibility_flags":["nodejs_compat"],
+  "workers_dev":true,
+  "d1_databases":[{"binding":"DB","database_name":"teachers-desk","database_id":"18a576e9-9aac-4f87-9d81-5edd27a484c3"}],
+  "observability":{"enabled":true,"logs":{"enabled":true,"invocation_logs":true}}
+}
