@@ -44,3 +44,9 @@ npm test
 `npm run build` embeds both payment and shared design changes into `src/worker.js`. `npm run preview:generate` produces `preview/app.html`, an interactive preview of every page using sample records. Preview payments and other edits stay in memory and never reach Cloudflare. The page links at the top open each flow directly.
 
 Design patterns were studied through Appllama: Superlist's title and list hierarchy, Sorted's grouped navigation, Todoist's grouped controls, and Calendars/Timepage's date context. Those patterns are adapted to this desktop table-based school workspace.
+
+## Consistent visual system
+
+The shared stylesheet defines the semantic palette, typography, 4px spacing scale, radii, and component treatments for all pages. Light mode uses ivory and white surfaces with a deep green accent; dark mode uses charcoal green surfaces with a lighter accent. Status colours retain their semantic roles. Overview metrics use a simple divided row; data tables, forms, and detail panels share the same control and label styles.
+
+Validation: `npm test` builds the Worker and sample previews and runs 45 checks covering page rendering, both appearances, navigation, forms, attendance, and payment history. Visual browser verification remains outstanding.
