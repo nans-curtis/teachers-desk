@@ -69,7 +69,7 @@ function deskRefine() {
   const pane=document.querySelector('.class-pane');
   if(pane){
     const h2=pane.querySelector('.pane-content > h2');if(h2)h2.textContent='Academic year';
-    const classNav=pane.querySelector('.class-list');if(classNav&&!classNav.previousElementSibling?.classList.contains('desk-pane-label')){
+    const classNav=pane.querySelector('.class-list');if(classNav&&!pane.querySelector('.desk-primary-nav')&&!classNav.previousElementSibling?.classList.contains('desk-pane-label')){
       const label=document.createElement('p');label.className='desk-pane-label';label.textContent='Classes';classNav.before(label);
     }
   }
@@ -81,13 +81,16 @@ function deskRefine() {
   }
   if(q==='home'||q==='class-home'||q==='class-management'||q==='subject-home') {
     const stats=deskScope(x,P,q==='home'?null:M);
-    root.insertAdjacentHTML('afterbegin',deskStatsMarkup(stats));
+    if(q!=='home')root.insertAdjacentHTML('afterbegin',deskStatsMarkup(stats));
     if(q==='home'){
-      const label=document.createElement('h2');label.className='desk-group-heading';label.textContent='Your classes';root.querySelector('.choice-grid')?.before(label);
+      const label=document.createElement('h2');label.className='desk-group-heading';label.textContent='Class workspaces';root.querySelector('.choice-grid')?.before(label);
       const heading=document.querySelector('.heading h1');if(heading)heading.textContent='Your desk';
     }
   }
   deskContextBar(root);
+  const attendanceAction=document.querySelector('[data-desk-new-attendance]');if(attendanceAction)attendanceAction.onclick=()=>deskGo('attendance',{classId:M});
+  const drawerToggle=document.querySelector('#toggle-class-pane');if(drawerToggle){const toggle=drawerToggle.onclick;drawerToggle.onclick=()=>{toggle();document.querySelector('.desk-rail').inert=false;};}
+  const mobileMenu=document.querySelector('[data-mobile-menu]');if(mobileMenu)mobileMenu.onclick=()=>document.querySelector('#toggle-class-pane').click();
   if(q==='home')deskDailyHome(root);
   if(q==='students')deskAttachStudentPanel(root);
   if(q==='lessons')deskGroupLessonCards(root);
@@ -110,7 +113,7 @@ function deskRefine() {
   for(const section of root.querySelectorAll('.empty'))section.classList.add('desk-empty-state');
 }
 // Install shared rendering hooks once; existing page renderers own their data and event handlers.
-try{const theme=localStorage.getItem('teachers-desk-appearance');if(theme==='light'||theme==='dark')document.documentElement.dataset.theme=theme;}catch{}
+try{const theme=localStorage.getItem('teachers-desk-appearance');document.documentElement.dataset.theme=theme==='dark'?'dark':'light';}catch{}
 const deskOriginalRender=de;de=function(){deskOriginalRender();deskRefine();};
 const deskOriginalStudents=Nt;Nt=function(root){deskOriginalStudents(root);deskAttachStudentPanel(root);};
 

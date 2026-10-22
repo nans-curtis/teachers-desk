@@ -49,11 +49,11 @@ Design patterns were studied through Appllama: Superlist's title and list hierar
 
 The shared stylesheet defines the semantic palette, typography, 4px spacing scale, radii, and component treatments for all pages. Light mode uses ivory and white surfaces with a deep green accent; dark mode uses charcoal green surfaces with a lighter accent. Status colours retain their semantic roles. Overview metrics use a simple divided row; data tables, forms, and detail panels share the same control and label styles.
 
-Validation: `npm test` builds the Worker and sample previews and runs the automated checks covering page rendering, both appearances, navigation, forms, attendance, and payment history. Visual browser verification remains outstanding.
+Validation: `npm test` builds the Worker and sample previews and runs the automated checks covering page rendering, both appearances, navigation, forms, attendance, and payment history. Desktop and mobile layouts have also been checked in headless Chrome.
 
 ## Daily assistant
 
-`src/daily.js` provides the Today agenda, attendance progress and work requiring attention. It calls the existing school-calendar and attendance-session engine, so weekly schedules, rotating cycles, exceptions and period attendance use the same rules as the register. No calendar configuration is shown as missing setup; holidays and dates outside the year do not imply completed attendance.
+`src/shell.js`, `src/attendance.js` and the shared presentation styles provide the sidebar workspace and independent register. `src/daily.js` provides the Today agenda, attendance progress and work requiring attention. Teaching schedules use the school calendar. Attendance is an independent class register: staff can choose any valid date and add sessions without calendar, timetable or academic-year date restrictions. Reports count saved entries only, leaving unrecorded dates blank.
 
 The shared context bar retains the chosen class, subject and date between tasks. Optional student details and notes are grouped in an expandable form section; fields and save handlers are preserved. The Today class directory remains available below the agenda.
 

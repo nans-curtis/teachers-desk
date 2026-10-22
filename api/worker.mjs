@@ -38,8 +38,8 @@ function mutations(kind,body,data){
       if(!record.classId||!record.studentId||!record.date||!record.status)fail('Attendance requires classId, studentId, date and status');
       const cls=data.classes.find(c=>c.id===record.classId);if(!cls)fail('Unknown classId');
       const sessions=sessionsForDate(record.date,cls,data.calendarConfigs,data.calendarDays,data.timetable,data.subjects);
-      const session=record.session||(sessions.length===1?sessions[0].key:null);
-      if(!session)fail('Supply a scheduled session key from /v1/context?classId=...&date=...');
+      const session=record.session||sessions[0]?.key||'session:1';
+
       const schedule=sessions.find(s=>s.key===session);
       existing=data.attendance.find(a=>a.classId===cls.id&&a.studentId===record.studentId&&a.date===record.date&&a.session===session);
       normalized={notes:'',...(existing?withoutId(existing):{}),...record,yearId:cls.yearId,session,subjectId:schedule?.subjectId??existing?.subjectId??null};

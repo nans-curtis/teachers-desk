@@ -18,7 +18,7 @@ curl -sS "$TEACHERS_DESK_API/v1/context?classId=CLASS_ID&date=2026-10-22" \
   -H "Authorization: Bearer $TEACHERS_DESK_API_KEY"
 ```
 
-Context returns the current `revision`, class, subject and assessment IDs and maxima. With `classId`, it includes enrolled student IDs, names and roll numbers. With `classId` and `date`, it also returns scheduled session keys. Parent contacts and payment records are excluded.
+Context returns the current `revision`, class, subject and assessment IDs and maxima. With `classId`, it includes enrolled student IDs, names and roll numbers. With `classId` and `date`, it also returns default register session keys. Parent contacts and payment records are excluded.
 
 ## Update attendance
 
@@ -29,7 +29,7 @@ curl -sS "$TEACHERS_DESK_API/v1/attendance" \
   --data '{"revision":13,"records":[{"classId":"CLASS_ID","studentId":"STUDENT_ID","date":"2026-10-22","status":"present"}]}'
 ```
 
-Replace the example revision with the revision from your latest GET response. Status is `present`, `absent`, `late`, `excused` or `half-day`. Optional fields: `session` and `notes`. If exactly one session is scheduled, its key is selected automatically. Otherwise supply a session key from context. The API derives academic year and attendance subject from the class and schedule. Existing entries are updated by class, student, date and session; repeated requests do not create duplicate entries.
+Replace the example revision with the revision from your latest GET response. Status is `present`, `absent`, `late`, `excused` or `half-day`. Optional fields: `session` and `notes`. The first class session is selected by default. Supply another session key from context, or a custom key such as `manual:Extra class`. Attendance is independent of the calendar, timetable and academic-year date range: weekends, holidays and future dates are accepted. The API derives the academic year from the class; attendance is class-wide. Existing entries are updated by class, student, date and session; repeated requests do not create duplicate entries.
 
 Read existing attendance:
 
@@ -55,7 +55,7 @@ Read existing marks:
 - Send 1–500 records per POST, up to 2 MB of JSON. Each batch is atomic.
 - Add `?dryRun=true` to either POST URL to validate without saving or increasing the revision.
 - Success: `{"ok":true,"revision":14,"updated":1,"records":[...]}`. Subsequent writes must use the new revision.
-- `400`: invalid fields, references, enrollment, score, schedule or duplicate batch identity.
+- `400`: invalid fields, references, enrollment, score or duplicate batch identity.
 - `401`: missing or incorrect key. `503`: key is not configured.
 - `409`: another write has advanced the revision. Fetch current data, reconcile your change and retry; do not blindly overwrite with a new revision.
 - Saved updates use the main app's validation, revision control and audit trail, with actor `integration:attendance-marks`.

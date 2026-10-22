@@ -1,4 +1,4 @@
-// Daily workspace uses the same calendar/session engine as the attendance register.
+// Attendance is independent of the teaching calendar.
 let deskDate=G(),deskDailyClass='';
 function deskDailyModel(data,yearId,date,classId=''){
   const year=data.years.find(y=>y.id===yearId),classes=data.classes.filter(c=>c.yearId===yearId&&(!classId||c.id===classId));
@@ -8,7 +8,7 @@ function deskDailyModel(data,yearId,date,classId=''){
   const recorded=new Set(data.attendance.filter(a=>a.date===date&&['present','absent','late','half-day','excused'].includes(a.status)).map(a=>[a.classId,a.session,a.studentId].join('|')));
   for(const cls of classes){
     const enrolled=new Set(data.enrollments.filter(e=>e.classId===cls.id&&e.status!=='left').map(e=>e.studentId));
-    const sessions=inYear?ue(date,cls,data.calendarConfigs,data.calendarDays,data.timetable,data.subjects):[];
+    const sessions=ue(date,cls);
     let missing=0,expected=0;
     for(const session of sessions)for(const studentId of enrolled){
       if(session.subjectId&&!data.subjects.find(s=>s.id===session.subjectId)?.studentIds.includes(studentId))continue;
@@ -39,6 +39,7 @@ function deskDailyModel(data,yearId,date,classId=''){
   return {year,classes,day,inYear,attendance,agenda,tasks};
 }
 function deskAllowNavigation(){
+  if(document.querySelector('#attendance-form[data-dirty="true"]'))return confirm('Discard unsaved attendance changes and continue?');
   return !document.querySelector('[data-edit-toggle]:checked')||confirm('Discard unsaved table edits and continue?');
 }
 function deskGo(page,options={}){
@@ -54,22 +55,22 @@ function deskDailyHome(root){
   const model=deskDailyModel(x,P,deskDate,deskDailyClass);if(!model.year)return;
   const future=deskDate>G(),dateLabel=new Date(deskDate+'T12:00:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
   const section=document.createElement('section');section.dataset.deskToday='';section.className='desk-today';
-  const attendance=model.attendance.map(({cls,missing,expected,sessions})=>`<button class="desk-daily-row" data-daily-attendance="${w(cls.id)}"><span class="desk-daily-icon">${V('check')}</span><span><strong>${w(cls.name)}</strong><small>${future?'Upcoming register':missing?`${missing} student${missing===1?'':'s'}${sessions>1?' / session entries':''} not marked`:`All ${expected} entries recorded`}</small></span><span class="badge">${future?'Upcoming':missing?'To mark':'Recorded'}</span>${V('chevron')}</button>`).join('');
-  const noAttendance=!model.inYear?'Outside the selected academic year.':!model.day.config?'Set up the school calendar to see attendance due.':!model.day.working?`No school sessions${model.day.name?' · '+w(model.day.name):''}.`:'No enrolled students are scheduled for attendance.';
-  section.innerHTML=`<div class="desk-today-title"><div><p class="desk-eyebrow">Your teaching day</p><h2>${deskDate===G()?'Today':w(dateLabel)}</h2><p class="muted">${deskDate===G()?w(dateLabel):'Classes, registers and work for this date.'}</p></div><button class="btn" data-daily-calendar>School calendar</button></div><div class="desk-daily-columns"><section class="desk-daily-group" aria-labelledby="daily-attendance-heading"><h3 id="daily-attendance-heading">Attendance</h3>${attendance||`<p class="desk-daily-empty">${noAttendance}</p>`}</section><section class="desk-daily-group" data-daily-agenda aria-labelledby="daily-agenda-heading"><h3 id="daily-agenda-heading">Teaching schedule</h3>${model.agenda.map((slot,i)=>`<button class="desk-daily-row" data-daily-slot="${i}"><time>${w(slot.period.start)}<small>${w(slot.period.end)}</small></time><span><strong>${w(slot.subject.name)}</strong><small>${w(slot.cls.name)} · ${w(slot.period.label)}</small></span>${V('chevron')}</button>`).join('')||`<p class="desk-daily-empty">${!model.day.config?'Set up periods in the school calendar.':!model.day.working||!model.inYear?'No teaching periods scheduled.':'No timetable entries for this date.'}</p>`}</section></div><section class="desk-daily-group desk-daily-work" aria-labelledby="daily-work-heading"><div class="section-title"><h3 id="daily-work-heading">Needs attention <span class="desk-count">${model.tasks.length}</span></h3>${model.tasks.length>8?'<span class="muted">Showing the first 8 · open Subjects for all work</span>':''}</div>${model.tasks.slice(0,8).map((task,i)=>`<button class="desk-daily-row" data-daily-task="${i}"><span class="desk-daily-icon">${V(task.page==='lessons'?'calendar':'book')}</span><span><strong>${w(task.title)}</strong><small>${w(task.cls.name)} · ${w(task.subject.name)} · ${w(task.description)}</small></span>${task.due?`<span class="desk-daily-due">${task.due<deskDate?'Overdue · ':''}${w(task.due)}</span>`:'<span class="desk-daily-due">No date set</span>'}${V('chevron')}</button>`).join('')||'<p class="desk-daily-empty">No pending marks, submissions or overdue lesson plans in the saved records.</p>'}</section>`;
+  const attendance=model.attendance.map(({cls,missing,expected,sessions})=>`<button class="desk-daily-row" data-daily-attendance="${w(cls.id)}"><span class="desk-daily-icon">${V('check')}</span><span><strong>${w(cls.name)}</strong><small>${future?'Open a register for this date':missing?`${missing} student${missing===1?'':'s'}${sessions>1?' / session entries':''} not marked`:`All ${expected} entries recorded`}</small></span><span class="badge">${future?'Open':missing?'Open register':'Recorded'}</span>${V('chevron')}</button>`).join('');
+  const noAttendance='No enrolled students in this class. Add students to start a register.';
+  section.innerHTML=`<div class="desk-today-title"><div><p class="desk-eyebrow">ATTENDANCE</p><h2>${deskDate===G()?'Class registers':w(dateLabel)}</h2><p class="muted">Choose a class to open or update its register.</p></div><button class="btn" data-daily-calendar>View timetable</button></div><div class="desk-daily-columns"><section class="desk-daily-group" aria-labelledby="daily-attendance-heading"><h3 id="daily-attendance-heading">Your classes</h3>${attendance||`<p class="desk-daily-empty">${noAttendance}</p>`}</section><section class="desk-daily-group" data-daily-agenda aria-labelledby="daily-agenda-heading"><h3 id="daily-agenda-heading">On the timetable</h3>${model.agenda.map((slot,i)=>`<button class="desk-daily-row" data-daily-slot="${i}"><time>${w(slot.period.start)}<small>${w(slot.period.end)}</small></time><span><strong>${w(slot.subject.name)}</strong><small>${w(slot.cls.name)} · ${w(slot.period.label)}</small></span>${V('chevron')}</button>`).join('')||`<p class="desk-daily-empty">${!model.day.config?'Set up periods in the school calendar.':!model.day.working||!model.inYear?'No teaching periods scheduled.':'No timetable entries for this date.'}</p>`}</section></div><section class="desk-daily-group desk-daily-work" aria-labelledby="daily-work-heading"><div class="section-title"><h3 id="daily-work-heading">Needs attention <span class="desk-count">${model.tasks.length}</span></h3>${model.tasks.length>8?'<span class="muted">Showing the first 8 · open Subjects for all work</span>':''}</div>${model.tasks.slice(0,8).map((task,i)=>`<button class="desk-daily-row" data-daily-task="${i}"><span class="desk-daily-icon">${V(task.page==='lessons'?'calendar':'book')}</span><span><strong>${w(task.title)}</strong><small>${w(task.cls.name)} · ${w(task.subject.name)} · ${w(task.description)}</small></span>${task.due?`<span class="desk-daily-due">${task.due<deskDate?'Overdue · ':''}${w(task.due)}</span>`:'<span class="desk-daily-due">No date set</span>'}${V('chevron')}</button>`).join('')||'<p class="desk-daily-empty">No pending marks, submissions or overdue lesson plans in the saved records.</p>'}</section>`;
   root.prepend(section);
   section.querySelectorAll('[data-daily-attendance]').forEach(button=>button.onclick=()=>deskGo('attendance',{classId:button.dataset.dailyAttendance}));
   section.querySelectorAll('[data-daily-slot]').forEach(button=>button.onclick=()=>{const slot=model.agenda[Number(button.dataset.dailySlot)];deskGo('lessons',{classId:slot.cls.id,subjectId:slot.subject.id});});
   section.querySelectorAll('[data-daily-task]').forEach(button=>button.onclick=()=>{const task=model.tasks[Number(button.dataset.dailyTask)];deskGo(task.page,{classId:task.cls.id,subjectId:task.subject.id,detailId:task.detailId});});
-  section.querySelector('[data-daily-calendar]').onclick=()=>deskGo('calendar',{classId:M||model.classes[0]?.id});
-  const title=document.querySelector('.heading h1');if(title)title.textContent='Your day, at a glance';
-  const subtitle=document.querySelector('.heading p');if(subtitle)subtitle.textContent='Teaching, attendance and the next thing to do.';
+  section.querySelector('[data-daily-calendar]').onclick=()=>deskGo('timetable',{classId:M||model.classes[0]?.id});
+  const title=document.querySelector('.heading h1');if(title)title.textContent=deskDate===G()?'Today':'Your teaching day';
+  const subtitle=document.querySelector('.heading p:last-child');if(subtitle)subtitle.textContent='A clear view of your classes and the work ahead.';
 }
 function deskContextBar(root){
   if(q==='settings'||!x.years.some(y=>y.id===P))return;
   const classes=x.classes.filter(c=>c.yearId===P),subjects=x.subjects.filter(s=>s.classId===M&&s.scope!=='class');
   const bar=document.createElement('nav');bar.className='desk-context';bar.setAttribute('aria-label','Daily workspace context');
-  bar.innerHTML=`<button class="btn btn-small" data-desk-today-link>Today</button><label class="desk-context-field">Class<select data-desk-class><option value="">All classes</option>${classes.map(c=>`<option value="${w(c.id)}"${c.id===(q==='home'?deskDailyClass:M)?' selected':''}>${w(c.name)}</option>`).join('')}</select></label>${q!=='home'&&M&&subjects.length?`<label class="desk-context-field">Subject<select data-desk-subject>${subjects.map(s=>`<option value="${w(s.id)}"${s.id===K?' selected':''}>${w(s.name)}</option>`).join('')}</select></label>`:''}<label class="desk-context-field desk-context-date">Date<input data-desk-date type="date" value="${w(q==='attendance'?re:deskDate)}" min="${w(Z().start)}" max="${w(Z().end)}"></label>`;
+  bar.innerHTML=`<button class="btn btn-small" data-desk-today-link>Today</button><label class="desk-context-field">Class<select data-desk-class><option value="">All classes</option>${classes.map(c=>`<option value="${w(c.id)}"${c.id===(q==='home'?deskDailyClass:M)?' selected':''}>${w(c.name)}</option>`).join('')}</select></label>${!['home','attendance','students','payments','activities','timetable','calendar','class-home','class-management'].includes(q)&&M&&subjects.length?`<label class="desk-context-field">Subject<select data-desk-subject>${subjects.map(s=>`<option value="${w(s.id)}"${s.id===K?' selected':''}>${w(s.name)}</option>`).join('')}</select></label>`:''}${q==='attendance'?'':`<label class="desk-context-field desk-context-date">Date<input data-desk-date type="date" value="${w(deskDate)}"></label>`}`;
   root.before(bar);
   bar.querySelector('[data-desk-today-link]').onclick=()=>{const previous=deskDate;deskDate=G();if(!deskGo('home'))deskDate=previous;};
   bar.querySelector('[data-desk-class]').onchange=event=>{
@@ -82,7 +83,8 @@ function deskContextBar(root){
     de();ge();
   };
   const subject=bar.querySelector('[data-desk-subject]');if(subject)subject.onchange=event=>{const id=event.target.value;if(!deskAllowNavigation()){event.target.value=K;return;}K=id;W='';de();ge();};
-  const date=bar.querySelector('[data-desk-date]');date.onchange=()=>{if(!date.value||!date.checkValidity())return;if(!deskAllowNavigation()){date.value=deskDate;return;}deskDate=date.value;if(q==='attendance'){re=deskDate;ze=deskDate.slice(0,7);}de();ge();};
+  const date=bar.querySelector('[data-desk-date]');if(date)date.onchange=()=>{if(!date.value||!date.checkValidity())return;if(!deskAllowNavigation()){date.value=deskDate;return;}deskDate=date.value;if(q==='attendance'){re=deskDate;ze=deskDate.slice(0,7);}de();ge();};
+  if(q==='attendance'&&O==='register'){const controls=root.querySelector('.register-controls'),field=bar.querySelector('[data-desk-class]')?.closest('label');if(controls&&field){field.className='field';controls.prepend(field);bar.remove();}}
 }
 function deskShortForm(){
   const body=document.querySelector('.modal-body');if(!body||body.querySelector('[data-desk-optional]'))return;
