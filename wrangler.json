@@ -1,0 +1,36 @@
+{
+  "name": "teachers-desk",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1,
+    "redact_query_string": false,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 0.1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 0.1
+    }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "teachers-desk",
+      "database_id": "18a576e9-9aac-4f87-9d81-5edd27a484c3"
+    }
+  ],
+  "vars": {
+    "AUTH_DOMAIN": "nandini-teachers-desk.cloudflareaccess.com",
+    "AUTH_AUD": "6358aeed14afa5e429f390e542ab460e92e75bae6d89e52f7099679f6bece939"
+  }
+}
