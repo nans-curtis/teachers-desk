@@ -31,3 +31,16 @@ No continuous deployment connection to GitHub has been configured by this copy.
 ## Editing the redesigned Payments page
 
 The payment UI is maintained in `src/payments.js` and `src/payments.css`. Run `node tools/build-payments.cjs` to embed changes in the recovered Worker without changing its backend. Run `node --test tests/payments.test.cjs` for collection calculations and filter checks. `node tools/preview-payments.cjs` generates an interactive sample-data preview after building. Click a student row to open the right panel and record a sample payment; sample changes stay in memory. Event management and the legacy edit dialog are available only in the live app.
+
+## Shared app design
+
+The app-wide visual system is maintained in `src/refinement.css`; presentation helpers and student detail panels live in `src/refinement.js`. It retains the existing backend, calculation rules and storage model.
+
+```sh
+npm ci
+npm test
+```
+
+`npm run build` embeds both payment and shared design changes into `src/worker.js`. `npm run preview:generate` produces `preview/app.html`, an interactive preview of every page using sample records. Preview payments and other edits stay in memory and never reach Cloudflare. The page links at the top open each flow directly.
+
+Design patterns were studied through Appllama: Superlist's title and list hierarchy, Sorted's grouped navigation, Todoist's grouped controls, and Calendars/Timepage's date context. Those patterns are adapted to this desktop table-based school workspace.

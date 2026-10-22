@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm');
+const path='src/worker.js',source=fs.readFileSync(path,'utf8');
+const match=source.match(/^var Ce=('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")/s);if(!match)throw Error('HTML bundle missing');
+let html=vm.runInNewContext(match[1]);
+html=html.replace(/\/\* desk-refinement-css-start \*\/[\s\S]*?\/\* desk-refinement-css-end \*\//,'');
+html=html.replace('</style>','/* desk-refinement-css-start */'+fs.readFileSync('src/refinement.css','utf8')+'/* desk-refinement-css-end */</style>');
+html=html.replace(/\/\* desk-refinement-js-start \*\/[\s\S]*?\/\* desk-refinement-js-end \*\//,'');
+const marker='Ct();})();';if(!html.includes(marker))throw Error('App bootstrap boundary missing');
+html=html.replace(marker,'/* desk-refinement-js-start */'+fs.readFileSync('src/refinement.js','utf8')+'/* desk-refinement-js-end */'+marker);
+for(const script of html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g))new vm.Script(script[1]);
+fs.writeFileSync(path,'var Ce='+JSON.stringify(html)+source.slice(match[0].length));
+fs.writeFileSync('/tmp/teachers-desk-refined.html',html);
+console.log('Shared design embedded; backend code unchanged');

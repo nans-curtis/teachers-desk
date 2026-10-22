@@ -1,0 +1,12 @@
+{
+  "name": "teachers-desk",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node tools/build-payments.cjs && node tools/build-refinement.cjs",
+    "preview:generate": "node tools/preview-app.cjs && node tools/preview-payments.cjs",
+    "test": "npm run build && npm run preview:generate && node --test tests/*.test.cjs"
+  },
+  "engines": { "node": ">=22.13.0" },
+  "devDependencies": { "jsdom": "29.1.1" }
+}

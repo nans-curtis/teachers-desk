@@ -3,6 +3,7 @@ const path='src/worker.js',source=fs.readFileSync(path,'utf8');
 const match=source.match(/^var Ce=('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")/s);
 if(!match)throw Error('HTML bundle not found');
 let html=vm.runInNewContext(match[1]);
+html=html.replace(/(?:\/\/ Runs inside the existing app script and uses its state, navigation and dialog helpers\.\n)+/g,'');
 const begin=html.indexOf('function paymentSummary(')>=0?html.indexOf('function paymentSummary('):html.indexOf('function Qt(');
 const end=html.indexOf('function jt(',begin);
 if(begin<0||end<0)throw Error('Payment boundaries missing');
