@@ -19,4 +19,4 @@ Studied 30 product screens on 22 October 2026, including images. These are plann
 7. Use one restrained semantic colour system. Pair every status colour with text; use colour for class or subject identity only when it has a consistent meaning.
 8. Place destructive and rare actions in the management area or contextual menu. Keep primary teaching actions visible and consistently labelled.
 
-The broader Today workflow is a recommendation, not an implemented feature. Native mobile navigation patterns must be adapted to the existing responsive web app.
+Implemented: Today agenda from the school calendar and timetable, per-class attendance progress, pending marks and submissions, overdue lesson reviews, class filtering, direct links to the relevant work, shared class/subject/date context, and progressively disclosed optional form fields. The existing table editing and exam-only marks workflow remain in use. Native mobile patterns are adapted to the responsive web app.

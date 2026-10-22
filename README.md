@@ -50,3 +50,9 @@ Design patterns were studied through Appllama: Superlist's title and list hierar
 The shared stylesheet defines the semantic palette, typography, 4px spacing scale, radii, and component treatments for all pages. Light mode uses ivory and white surfaces with a deep green accent; dark mode uses charcoal green surfaces with a lighter accent. Status colours retain their semantic roles. Overview metrics use a simple divided row; data tables, forms, and detail panels share the same control and label styles.
 
 Validation: `npm test` builds the Worker and sample previews and runs 45 checks covering page rendering, both appearances, navigation, forms, attendance, and payment history. Visual browser verification remains outstanding.
+
+## Daily assistant
+
+`src/daily.js` provides the Today agenda, attendance progress and work requiring attention. It calls the existing school-calendar and attendance-session engine, so weekly schedules, rotating cycles, exceptions and period attendance use the same rules as the register. No calendar configuration is shown as missing setup; holidays and dates outside the year do not imply completed attendance.
+
+The shared context bar retains the chosen class, subject and date between tasks. Optional student details and notes are grouped in an expandable form section; fields and save handlers are preserved. The Today class directory remains available below the agenda.

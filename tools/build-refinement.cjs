@@ -7,7 +7,7 @@ html=html.replace(/\/\* desk-refinement-css-start \*\/[\s\S]*?\/\* desk-refineme
 html=html.replace('</style>','/* desk-refinement-css-start */'+fs.readFileSync('src/refinement.css','utf8')+'/* desk-refinement-css-end */</style>');
 html=html.replace(/\/\* desk-refinement-js-start \*\/[\s\S]*?\/\* desk-refinement-js-end \*\//,'');
 const marker='Ct();})();';if(!html.includes(marker))throw Error('App bootstrap boundary missing');
-html=html.replace(marker,'/* desk-refinement-js-start */'+fs.readFileSync('src/refinement.js','utf8')+'/* desk-refinement-js-end */'+marker);
+html=html.replace(marker,'/* desk-refinement-js-start */'+fs.readFileSync('src/daily.js','utf8')+'\n'+fs.readFileSync('src/refinement.js','utf8')+'/* desk-refinement-js-end */'+marker);
 for(const script of html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g))new vm.Script(script[1]);
 fs.writeFileSync(path,'var Ce='+JSON.stringify(html)+source.slice(match[0].length));
 fs.writeFileSync('/tmp/teachers-desk-refined.html',html);

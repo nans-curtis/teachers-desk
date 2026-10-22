@@ -65,6 +65,7 @@ function deskGroupLessonCards(root) {
 function deskRefine() {
   const root=document.querySelector('#view'),shell=document.querySelector('.desk-shell');if(!root||!shell)return;
   shell.dataset.page=q;
+  if(q==='attendance'&&O)deskDate=re;
   const pane=document.querySelector('.class-pane');
   if(pane){
     const h2=pane.querySelector('.pane-content > h2');if(h2)h2.textContent='Academic year';
@@ -86,11 +87,8 @@ function deskRefine() {
       const heading=document.querySelector('.heading h1');if(heading)heading.textContent='Your desk';
     }
   }
-  if(['subject-home','assessments','projects','terms','lessons'].includes(q)) {
-    const tools=document.querySelector('.pane-tools');
-    const subjects=x.subjects.filter(s=>s.classId===M&&!_(s));
-    if(tools&&subjects.length){const label=document.createElement('label');label.className='desk-subject-select';label.textContent='Subject';const select=document.createElement('select');select.setAttribute('aria-label','Current subject');select.innerHTML=subjects.map(s=>`<option value="${w(s.id)}"${s.id===K?' selected':''}>${w(s.name)}</option>`).join('');select.onchange=()=>{K=select.value;W='';ce(q);};label.append(select);tools.prepend(label);}
-  }
+  deskContextBar(root);
+  if(q==='home')deskDailyHome(root);
   if(q==='students')deskAttachStudentPanel(root);
   if(q==='lessons')deskGroupLessonCards(root);
   if(q==='settings'){
@@ -115,3 +113,7 @@ function deskRefine() {
 try{const theme=localStorage.getItem('teachers-desk-appearance');if(theme==='light'||theme==='dark')document.documentElement.dataset.theme=theme;}catch{}
 const deskOriginalRender=de;de=function(){deskOriginalRender();deskRefine();};
 const deskOriginalStudents=Nt;Nt=function(root){deskOriginalStudents(root);deskAttachStudentPanel(root);};
+
+const deskOriginalModal=J;J=function(...args){deskOriginalModal(...args);deskShortForm();};
+
+const deskOriginalNavigate=ce;ce=function(page){if(!deskAllowNavigation())return;if(q==='attendance'&&O)deskDate=re;deskOriginalNavigate(page);if(page==='attendance'){re=deskDate;O='register';de();}};
