@@ -2,6 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm');
 const path='src/worker.js',source=fs.readFileSync(path,'utf8');
 const match=source.match(/^var Ce=('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")/s);if(!match)throw Error('HTML bundle missing');
 let html=vm.runInNewContext(match[1]);
+html=require('./refine-exams.cjs')(html);
 html=html.replace(/\/\* desk-refinement-css-start \*\/[\s\S]*?\/\* desk-refinement-css-end \*\//,'');
 html=html.replace('</style>','/* desk-refinement-css-start */'+fs.readFileSync('src/refinement.css','utf8')+'/* desk-refinement-css-end */</style>');
 html=html.replace(/\/\* desk-refinement-js-start \*\/[\s\S]*?\/\* desk-refinement-js-end \*\//,'');
