@@ -27,3 +27,7 @@ The configuration targets the existing live Worker and database. Deploying updat
 For a separate installation, change the Worker name, create a D1 database, update its binding ID and authentication identifiers, and run `schema.sql` only against the new database. Keep the existing database unchanged when restoring this deployment.
 
 No continuous deployment connection to GitHub has been configured by this copy.
+
+## Editing the redesigned Payments page
+
+The payment UI is maintained in `src/payments.js` and `src/payments.css`. Run `node tools/build-payments.cjs` to embed changes in the recovered Worker without changing its backend. Run `node --test tests/payments.test.cjs` for collection calculations and filter checks. `node tools/preview-payments.cjs` generates an interactive sample-data preview after building. Click a student row to open the right panel and record a sample payment; sample changes stay in memory. Event management and the legacy edit dialog are available only in the live app.

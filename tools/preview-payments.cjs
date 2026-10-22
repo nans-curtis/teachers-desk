@@ -1,0 +1,26 @@
+const fs=require('node:fs');
+const source=fs.readFileSync('/tmp/teachers-desk-redesign.html','utf8');
+const styles=source.match(/<style[^>]*>([\s\S]*?)<\/style>/)[1];
+const script=fs.readFileSync('src/payments.js','utf8');
+const fixtures=`
+const students=[{id:'a',name:'Aarav Sharma',admissionNo:'101'},{id:'b',name:'Diya Patel',admissionNo:'102'},{id:'c',name:'Ishaan Rao',admissionNo:'103'},{id:'d',name:'Meera Nair',admissionNo:'104'}];
+let x={events:[{id:'trip',classId:'c',name:'Annual school trip',amount:1500,dueDate:'2026-11-05'}],payments:[{id:'p-a',eventId:'trip',studentId:'a',installments:[{amount:1500,date:'2026-10-20'}]},{id:'p-b',eventId:'trip',studentId:'b',installments:[{amount:500,date:'2026-10-21'}]},{id:'p-d',eventId:'trip',studentId:'d',installments:[{amount:1000,date:''}]}]};
+let M='c',W='trip',wt='';
+const se=()=>students;
+const w=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+const me=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2,minimumFractionDigits:0}).format(n);
+const Ge=s=>new Date(s+'T12:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+const G=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Kolkata'});
+const st=s=>'<strong>'+w(s.name)+'</strong><small>Admission '+w(s.admissionNo)+'</small>';
+const F=(root,selector,callback)=>root.querySelectorAll(selector).forEach(button=>button.addEventListener('click',ev=>callback(button,ev)));
+const oe=message=>{document.querySelector('[data-preview-message]').textContent=message+' · sample data only';};
+const U=(kind,data,id)=>({kind,id:id||crypto.randomUUID(),data});
+const z=async records=>{for(const record of records){const index=x.payments.findIndex(p=>p.id===record.id),payment={...record.data,id:record.id};if(index>=0)x.payments[index]=payment;else x.payments.push(payment);}Qt(document.querySelector('#payment-app'));};
+const Gt=()=>oe('The live app opens its existing editor for amount overrides, notes and corrections');
+const jt=()=>oe('Event editing is available in the live app');
+const nt=()=>oe('Event deletion is disabled in this preview');
+const De=(name,rows)=>{const content=rows.map(row=>row.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:'text/csv'}));a.download=name;a.click();URL.revokeObjectURL(a.href);};
+`;
+fs.mkdirSync('preview',{recursive:true});
+fs.writeFileSync('preview/payments.html',`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Payments — table and student panel preview</title><style>${styles}</style><body><main style="max-width:1440px;min-width:0;margin:0 auto;padding:32px 24px"><p class="muted">Teacher's Desk · Class 8 A · Interactive preview with sample data</p><h1>Payments</h1><div id="payment-app"></div><p class="muted" role="status" data-preview-message>Click a student to view their history and record a sample payment. Changes stay in this preview.</p></main><script>${fixtures}\n${script}\nQt(document.querySelector('#payment-app'));\ndocument.querySelector('[data-payment="b"]').click();</script></body></html>`);
+console.log('Interactive preview created: preview/payments.html');
